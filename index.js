@@ -4,7 +4,7 @@ const axios = require('axios');
 const app = express();
 
 const PORT = process.env.PORT || 10000;
-const API_KEY = 'sk_d78f3d78ea3d4d75a61e3f099ccd07c7'; // sua chave secreta real da Pagar.me
+const API_KEY = 'sk_test_8530618907b2458e93f7e1eee9d18da8'; // sua chave secreta real da Pagar.me
 
 app.use(cors());
 app.use(express.json());
