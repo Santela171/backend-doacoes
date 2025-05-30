@@ -14,34 +14,30 @@ app.use((req, res, next) => {
   next();
 });
 
-app.post('/card_hash', async (req, res) => {
+app.post('/card_id', async (req, res) => {
   try {
-    const card = req.body;
+    const { card_number, card_holder_name, card_expiration_date, card_cvv } = req.body;
 
-    const response = await axios.post(
-      'https://api.pagar.me/core/v5/cards',
-      {
-        number: card.number,
-        holder_name: card.holder_name,
-        expiration_date: card.expiration_date,
-        cvv: card.cvv
-      },
-      {
-        headers: {
-          'Authorization': `Basic ${Buffer.from(API_KEY + ':').toString('base64')}`,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
+    if (!card_number || !card_holder_name || !card_expiration_date || !card_cvv) {
+      return res.status(400).json({ error: 'Dados do cartão incompletos.' });
+    }
 
-    console.log('✅ card_id criado:', response.data.id);
-    res.json({ card_id: response.data.id });
+    const client = await pagarme.client.connect({ api_key: process.env.PAGARME_API_KEY });
 
+    const card = await client.cards.create({
+      number: card_number,
+      holder_name: card_holder_name,
+      expiration_date: card_expiration_date,
+      cvv: card_cvv,
+    });
+
+    res.status(200).json({ card_id: card.id });
   } catch (err) {
-    console.error('❌ Erro ao gerar card_id:', err.response?.data || err.message);
+    console.error('Erro ao gerar card_id:', err.response?.errors || err.message);
     res.status(500).json({ error: 'Erro ao gerar card_id' });
   }
 });
+
 
 app.post('/doar', async (req, res) => {
   try {
